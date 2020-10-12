@@ -38,3 +38,10 @@ def create_product_history(obj: ProductHistory, product_id):
         return db_cursor.lastrowid
     except:
         return False
+
+
+def find_product_by_name_and_company(name, company_id):
+    sql = f"SELECT * FROM Product WHERE Name='{name}' AND CompanyId={company_id}"
+    db_cursor.execute(sql)
+    result = db_cursor.fetchone()
+    return result[0] if result else result
