@@ -70,22 +70,25 @@ for e in CompanyNameEnum.list():
     create_company(Company(e))
 
 # create scrap configurator for Tata
-create_scrap_configurator(ScrapConfigurator(
-    company_id=get_company_by_name(CompanyNameEnum.TATA.value),
-    scrap_with=ScrapWithEnum.API.name,
-    product_name_path="['productName']",
-    product_price_path="['items', '0', 'sellers', '0', 'commertialOffer', 'ListPrice']",
-    product_thumb_img_path="['items', '0', 'images', '0', 'imageUrl']",
-    product_img_path="['items', '0', 'images', '0', 'imageUrl']",
-    pagination_path=None,
-    category_name_path="['categories', '0']",
-    sub_category_name_path="['categories', '0']",
-    sub_sub_category_name_path="['categories', '0']",
-    product_items_path=None,
-    product_url_path="['link']",
-    url=None,
-    api="https://www.tata.com.uy/api/catalog_system/pub/products/search/"
-        "almacen/desayuno?O=OrderByTopSaleDESC&_from={}&_to={}&ft&sc=4"
+for c in ['desayuno', 'aceites-y-aderezos', 'golosinas-y-chocolates', 'panificados',
+          'snacks', 'aceitunas-y-encurtidos', 'conservas', 'arroz-harina-y-legumbres',
+          'sopas-caldos-y-pure', 'pastas-y-salsas', 'apto-para-celiacos-y-diabeticos']:
+    create_scrap_configurator(ScrapConfigurator(
+        company_id=get_company_by_name(CompanyNameEnum.TATA.value),
+        scrap_with=ScrapWithEnum.API.name,
+        product_name_path="['productName']",
+        product_price_path="['items', '0', 'sellers', '0', 'commertialOffer', 'ListPrice']",
+        product_thumb_img_path="['items', '0', 'images', '0', 'imageUrl']",
+        product_img_path="['items', '0', 'images', '0', 'imageUrl']",
+        pagination_path=None,
+        category_name_path="['categories', '0']",
+        sub_category_name_path="['categories', '0']",
+        sub_sub_category_name_path="['categories', '0']",
+        product_items_path=None,
+        product_url_path="['link']",
+        url=None,
+        api=f"https://www.tata.com.uy/api/catalog_system/pub/products/search/almacen/{c}"
+            "?O=OrderByTopSaleDESC&_from={}&_to={}&ft&sc=4"
 ))
 
 # create scrap configurator for Disco
