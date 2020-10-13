@@ -55,8 +55,8 @@ def transform_json_data(data, config):
 
 
 def api_bs_scraper(config):
+    page_number = 1
     while True:
-        page_number = 1
         page = requests.get(config.url.format(page_number))
         products = BS(page.content, 'html.parser').select(config.product_items_path)
         if not products:
@@ -68,8 +68,8 @@ def api_bs_scraper(config):
 
 
 def api_scraper(config):
+    page_number = 1
     while True:
-        page_number = 1
         _to = page_number*50-50
         _from = page_number*50-1
         products = requests.get(config.api.format(_to, _from)).json()
