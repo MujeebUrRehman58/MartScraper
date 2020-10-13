@@ -1,9 +1,9 @@
-# scraper code goes here
-from datetime import datetime, timedelta
+from src.scripts.queries import get_all_configurators
+from src.db import ScrapConfigurator
+from src.enums import ScrapWithEnum
 
-from src.scripts.queries import create_company
-from src.scripts.queries import create_product
-from src.scripts.queries import create_product_history
-from src.db import Company
-from src.db import Product
-from src.db import ProductHistory
+
+for c in get_all_configurators():
+    c = ScrapConfigurator(*c)
+    scrap_func = ScrapWithEnum.filter_by_name(c.scrap_with).value.func
+    scrap_func(c)

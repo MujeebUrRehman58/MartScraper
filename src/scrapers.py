@@ -45,13 +45,15 @@ def disco_scraper(company_id):
                 image = res['items'][0]['images'][0]['imageUrl']
                 url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-1000-1000\2", image)
                 thumb_url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-250-250\2", image)
-                category_name = res['categories'][1]
-                sub_category_name = res['categories'][0]
+                category = [i for i in res['categories'][0].split('/') if i]
+                category_name = category[0]
+                sub_category_name = category[1]
+                sub_sub_category_name = category[2]
                 url_product = res['link']
                 create_product(Product(
-                    name=name, price=price, currency=currency, date_time_scrap=date_time_scrap,
-                    url_img=url_img, thumb_url_img=thumb_url_img, category_name=category_name,
-                    sub_category_name=sub_category_name, url_product=url_product), company_id)
+                    name=name, price=price, currency=currency, date_time_scrap=date_time_scrap, url_img=url_img,
+                    thumb_url_img=thumb_url_img, category_name=category_name, sub_category_name=sub_category_name,
+                    sub_sub_category_name=sub_sub_category_name, url_product=url_product), company_id)
 
         page_number += 1
 
@@ -80,57 +82,56 @@ def tata_scraper(company_id=2):
                 image = p['items'][0]['images'][0]['imageUrl']
                 url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-1000-1000\2", image)
                 thumb_url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-250-250\2", image)
-                category_name = p['categories'][1]
-                sub_category_name = p['categories'][0]
+                category = [i for i in p['categories'][0].split('/') if i]
+                category_name = category[0]
+                sub_category_name = category[1]
+                sub_sub_category_name = category[2]
                 url_product = p['link']
                 create_product(Product(
-                    name=name, price=price, currency=currency, date_time_scrap=date_time_scrap,
-                    url_img=url_img, thumb_url_img=thumb_url_img, category_name=category_name,
-                    sub_category_name=sub_category_name, url_product=url_product), company_id)
+                    name=name, price=price, currency=currency, date_time_scrap=date_time_scrap, url_img=url_img,
+                    thumb_url_img=thumb_url_img, category_name=category_name, sub_category_name=sub_category_name,
+                    sub_sub_category_name=sub_sub_category_name, url_product=url_product), company_id)
 
         page_number += 1
 
 
-def tiendainglesa_scraper(company_id=3):
-
+def tiendainglesa_scraper(config):
     driver = webdriver.Chrome(f'{pathlib.Path(__file__).parent.absolute()}/chromedriver/chromedriver',
                               chrome_options=chrome_options)
     driver.set_window_size(1804, 1096)
-    # todo: get begin url from configurator table
-    url = 'https://www.tiendainglesa.com.uy/Categoria/Almac%C3%A9n/' \
-          'busqueda?0,0,*:*,78,0,0,,%5B%5D,false,%5B%5D,%5B%5D,,{}'
     page_number = 0
     while True:
-        driver.get(url.format(page_number))
-        products = driver.find_elements_by_css_selector('.TableWebGridSearch')
+        driver.get(config.url.format(page_number))
+        products = driver.find_elements_by_css_selector(config.product_items_path)
         if not products:
             break
         for p in products:
-            name = p.find_element_by_css_selector('.wCartProductName a').text
-            price = p.find_element_by_css_selector('.ProductPrice').text
+            name = p.find_element_by_css_selector(config.product_name_path).text
+            price = p.find_element_by_css_selector(config.product_price_path).text
             currency = re.findall(r'[^ 0-9]', price)[0]
             price = int(''.join(re.findall(r'[0-9]', price)))
             date_time_scrap = dt.utcnow()
-            product_id = find_product_by_name_and_company(name, company_id)
+            product_id = find_product_by_name_and_company(name, config.company_id)
             if product_id:
                 create_product_history(ProductHistory(
                     price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
                 )
             else:
-                thumb_url_img = p.find_element_by_css_selector('.gx-image-link img').get_attribute('src')
+                thumb_url_img = p.find_element_by_css_selector(config.product_thumb_img_path).get_attribute('src')
                 url_img = re.sub('/small/', '/large/', thumb_url_img)
-                url_product = p.find_element_by_css_selector('.wCartProductName a').get_attribute('href')
+                url_product = p.find_element_by_css_selector(config.product_name_path).get_attribute('href')
                 session = requests.session()
                 session.headers = {'User-Agent': user_agent}
                 res = session.get(url_product)
                 res = BS(res.content, 'html.parser')
-                crumbs = res.select('.wBreadCrumbText a')
-                category_name = '/'.join([crumbs[1].get_text(), crumbs[2].get_text()])
-                sub_category_name = '/'.join([crumbs[1].get_text(), crumbs[2].get_text(), crumbs[3].get_text()])
+                crumbs = res.select(config.category_name_path)
+                category_name = crumbs[1].get_text()
+                sub_category_name = crumbs[2].get_text()
+                sub_sub_category_name = crumbs[3].get_text()
                 create_product(Product(
-                    name=name, price=price, currency=currency, date_time_scrap=date_time_scrap,
-                    url_img=url_img, thumb_url_img=thumb_url_img, category_name=category_name,
-                    sub_category_name=sub_category_name, url_product=url_product), company_id)
+                    name=name, price=price, currency=currency, date_time_scrap=date_time_scrap, url_img=url_img,
+                    thumb_url_img=thumb_url_img, category_name=category_name, sub_category_name=sub_category_name,
+                    sub_sub_category_name=sub_sub_category_name, url_product=url_product), config.company_id)
 
         page_number += 1
     driver.close()
