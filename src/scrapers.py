@@ -1,14 +1,22 @@
 import requests
 from datetime import datetime as dt
 import re
+import pathlib
 
 from bs4 import BeautifulSoup as BS
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 from src.db import Product
 from src.db import ProductHistory
 from src.scripts.queries import create_product
 from src.scripts.queries import create_product_history
 from src.scripts.queries import find_product_by_name_and_company
+
+
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'
 
 
 def disco_scraper(company_id):
@@ -83,4 +91,47 @@ def tata_scraper(company_id=2):
         page_number += 1
 
 
-tata_scraper()
+def tiendainglesa_scraper(company_id=3):
+
+    driver = webdriver.Chrome(f'{pathlib.Path(__file__).parent.absolute()}/chromedriver/chromedriver',
+                              chrome_options=chrome_options)
+    driver.set_window_size(1804, 1096)
+    # todo: get begin url from configurator table
+    url = 'https://www.tiendainglesa.com.uy/Categoria/Almac%C3%A9n/' \
+          'busqueda?0,0,*:*,78,0,0,,%5B%5D,false,%5B%5D,%5B%5D,,{}'
+    page_number = 0
+    while True:
+        driver.get(url.format(page_number))
+        products = driver.find_elements_by_css_selector('.TableWebGridSearch')
+        if not products:
+            break
+        for p in products:
+            name = p.find_element_by_css_selector('.wCartProductName a').text
+            price = p.find_element_by_css_selector('.ProductPrice').text
+            currency = re.findall(r'[^ 0-9]', price)[0]
+            price = int(''.join(re.findall(r'[0-9]', price)))
+            date_time_scrap = dt.utcnow()
+            product_id = find_product_by_name_and_company(name, company_id)
+            if product_id:
+                create_product_history(ProductHistory(
+                    price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
+                )
+            else:
+                thumb_url_img = p.find_element_by_css_selector('.gx-image-link img').get_attribute('src')
+                url_img = re.sub('/small/', '/large/', thumb_url_img)
+                url_product = p.find_element_by_css_selector('.wCartProductName a').get_attribute('href')
+                session = requests.session()
+                session.headers = {'User-Agent': user_agent}
+                res = session.get(url_product)
+                res = BS(res.content, 'html.parser')
+                crumbs = res.select('.wBreadCrumbText a')
+                category_name = '/'.join([crumbs[1].get_text(), crumbs[2].get_text()])
+                sub_category_name = '/'.join([crumbs[1].get_text(), crumbs[2].get_text(), crumbs[3].get_text()])
+                create_product(Product(
+                    name=name, price=price, currency=currency, date_time_scrap=date_time_scrap,
+                    url_img=url_img, thumb_url_img=thumb_url_img, category_name=category_name,
+                    sub_category_name=sub_category_name, url_product=url_product), company_id)
+
+        page_number += 1
+    driver.close()
+
