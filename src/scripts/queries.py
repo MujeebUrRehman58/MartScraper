@@ -18,14 +18,14 @@ def create_company(obj: Company):
 
 def create_scrap_configurator(obj: ScrapConfigurator):
     try:
-        sql = "INSERT INTO ScrapConfigurator (CompanyId, ScrapWith, ProductItemsPath, ProductNamePath," \
+        sql = "INSERT INTO ScrapConfigurator (CompanyId, ScrapWith, ProductNamePath," \
               " ProductPricePath, ProductThumbImgPath, ProductImgPath, PaginationPath, CategoryNamePath," \
-              " SubCategoryNamePath, SubSubCategoryNamePath, URL, API) VALUES " \
-              "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        db_cursor.execute(sql, (obj.company_id, obj.scrap_with, obj.product_items_path, obj.product_name_path,
-                                obj.product_price_path, obj.product_thumb_img_path, obj.product_img_path,
-                                obj.pagination_path, obj.category_name_path, obj.sub_category_name_path,
-                                obj.sub_sub_category_name_path, obj.url, obj.api))
+              " SubCategoryNamePath, SubSubCategoryNamePath, ProductItemsPath, ProductURLPath,  URL, API) VALUES " \
+              "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        db_cursor.execute(sql, (obj.company_id, obj.scrap_with, obj.product_name_path, obj.product_price_path,
+                                obj.product_thumb_img_path, obj.product_img_path, obj.pagination_path,
+                                obj.category_name_path, obj.sub_category_name_path, obj.sub_sub_category_name_path,
+                                obj.product_items_path, obj.product_url_path, obj.url, obj.api))
         db.commit()
         return db_cursor.lastrowid
     except Exception as ex:
@@ -76,7 +76,7 @@ def get_company_by_name(name):
 
 
 def get_all_configurators():
-    db_cursor.execute("SELECT CompanyId, ScrapWith, ProductItemsPath, ProductNamePath, ProductPricePath,"
+    db_cursor.execute("SELECT CompanyId, ScrapWith, ProductNamePath, ProductPricePath,"
                       " ProductThumbImgPath, ProductImgPath, PaginationPath, CategoryNamePath, SubCategoryNamePath,"
-                      " SubSubCategoryNamePath, URL, API FROM ScrapConfigurator")
+                      " SubSubCategoryNamePath, ProductItemsPath, ProductURLPath, URL, API FROM ScrapConfigurator")
     return db_cursor.fetchall()

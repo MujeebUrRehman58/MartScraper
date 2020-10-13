@@ -40,12 +40,11 @@ class ProductHistory:
 
 
 class ScrapConfigurator:
-    def __init__(self, company_id, scrap_with, product_items_path, product_name_path, product_price_path,
-                 product_thumb_img_path, product_img_path=None, pagination_path=None, category_name_path=None,
-                 sub_category_name_path=None, sub_sub_category_name_path=None, url=None, api=None):
+    def __init__(self, company_id, scrap_with, product_name_path, product_price_path, product_thumb_img_path,
+                 product_img_path=None, pagination_path=None, category_name_path=None, sub_category_name_path=None,
+                 sub_sub_category_name_path=None, product_items_path=None, product_url_path=None, url=None, api=None):
         self.company_id = company_id
         self.scrap_with = scrap_with
-        self.product_items_path = product_items_path
         self.product_name_path = product_name_path
         self.product_price_path = product_price_path
         self.product_thumb_img_path = product_thumb_img_path
@@ -54,5 +53,7 @@ class ScrapConfigurator:
         self.category_name_path = category_name_path
         self.sub_category_name_path = sub_category_name_path
         self.sub_sub_category_name_path = sub_sub_category_name_path
+        self.product_items_path = product_items_path
+        self.product_url_path = product_url_path
         self.url = url
         self.api = api

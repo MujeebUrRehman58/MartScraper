@@ -23,7 +23,6 @@ db_cursor.execute(
     f"ScrapConfiguratorID INT(11) AUTO_INCREMENT PRIMARY KEY,"
     f" CompanyId INT(11) NOT NULL,"
     f" ScrapWith VARCHAR(255) NOT NULL,"
-    f" ProductItemsPath VARCHAR(800) NOT NULL,"
     f" ProductNamePath VARCHAR(800) NOT NULL,"
     f" ProductPricePath VARCHAR(800) NOT NULL,"
     f" ProductThumbImgPath VARCHAR(800) NOT NULL,"
@@ -32,6 +31,8 @@ db_cursor.execute(
     f" CategoryNamePath VARCHAR(800),"
     f" SubCategoryNamePath VARCHAR(800),"
     f" SubSubCategoryNamePath VARCHAR(800),"
+    f" ProductItemsPath VARCHAR(800),"
+    f" ProductURLPath VARCHAR(800),"
     f" URL VARCHAR(800),"
     f" API VARCHAR(800),"
     f" FOREIGN KEY (CompanyId) REFERENCES {TablesEnum.COMPANY.value} (CompanyId));"
@@ -68,11 +69,48 @@ db_cursor.execute(
 for e in CompanyNameEnum.list():
     create_company(Company(e))
 
+# create scrap configurator for Tata
+create_scrap_configurator(ScrapConfigurator(
+    company_id=get_company_by_name(CompanyNameEnum.TATA.value),
+    scrap_with=ScrapWithEnum.API.name,
+    product_name_path="['productName']",
+    product_price_path="['items', '0', 'sellers', '0', 'commertialOffer', 'ListPrice']",
+    product_thumb_img_path="['items', '0', 'images', '0', 'imageUrl']",
+    product_img_path="['items', '0', 'images', '0', 'imageUrl']",
+    pagination_path=None,
+    category_name_path="['categories', '0']",
+    sub_category_name_path="['categories', '0']",
+    sub_sub_category_name_path="['categories', '0']",
+    product_items_path=None,
+    product_url_path="['link']",
+    url=None,
+    api="https://www.tata.com.uy/api/catalog_system/pub/products/search/"
+        "almacen/desayuno?O=OrderByTopSaleDESC&_from={}&_to={}&ft&sc=4"
+))
+
+# create scrap configurator for Disco
+create_scrap_configurator(ScrapConfigurator(
+    company_id=get_company_by_name(CompanyNameEnum.DISCO.value),
+    scrap_with=ScrapWithEnum.API_BS.name,
+    product_name_path="['productName']",
+    product_price_path="['items', '0', 'sellers', '0', 'commertialOffer', 'ListPrice']",
+    product_thumb_img_path="['items', '0', 'images', '0', 'imageUrl']",
+    product_img_path="['items', '0', 'images', '0', 'imageUrl']",
+    pagination_path=None,
+    category_name_path="['categories', '0']",
+    sub_category_name_path="['categories', '0']",
+    sub_sub_category_name_path="['categories', '0']",
+    product_items_path='.Product',
+    product_url_path="['link']",
+    url="https://www.disco.com.uy/buscapagina?sc=4&fq=C%3a%2f412%2f&" \
+        "PS=20&sl=994d903c-157c-4807-b8a3-ae3c5e511a30&cc=1&sm=0&PageNumber={}",
+    api="https://www.disco.com.uy/api/catalog_system/pub/products/search/?&fq=productId:{}"
+))
+
 # create scrap configurator for Tiendainglesa
 create_scrap_configurator(ScrapConfigurator(
     company_id=get_company_by_name(CompanyNameEnum.TIENDAINGLESA.value),
     scrap_with=ScrapWithEnum.SELENIUM.name,
-    product_items_path='.TableWebGridSearch',
     product_name_path='.wCartProductName a',
     product_price_path='.ProductPrice',
     product_thumb_img_path='.gx-image-link img',
@@ -81,41 +119,9 @@ create_scrap_configurator(ScrapConfigurator(
     category_name_path='.wBreadCrumbText a',
     sub_category_name_path='.wBreadCrumbText a',
     sub_sub_category_name_path='.wBreadCrumbText a',
+    product_items_path='.TableWebGridSearch',
+    product_url_path='.wCartProductName a',
     url='https://www.tiendainglesa.com.uy/Categoria/Almac%C3%A9n/'
         'busqueda?0,0,*:*,78,0,0,,%5B%5D,false,%5B%5D,%5B%5D,,{}',
     api=None
 ))
-
-'''
-# create scrap configurator for Tata
-create_scrap_configurator(ScrapConfigurator(
-    company_id=get_company_by_name(CompanyNameEnum.TIENDAINGLESA.value), 
-    scrap_with=ScrapWithEnum.SELENIUM.name,
-    product_name_path='.wCartProductName a',
-    product_price_path='',
-    product_thumb_img_path='',
-    product_img_path='',
-    pagination_path='',
-    category_name_path='',
-    sub_category_name_path='',
-    sub_sub_category_name_path='',
-    url='',
-    api=''
-))
-
-# create scrap configurator for Disco
-create_scrap_configurator(ScrapConfigurator(
-    company_id=get_company_by_name(CompanyNameEnum.TIENDAINGLESA.value), 
-    scrap_with=ScrapWithEnum.SELENIUM.name,
-    product_name_path='.wCartProductName a',
-    product_price_path='',
-    product_thumb_img_path='',
-    product_img_path='',
-    pagination_path='',
-    category_name_path='',
-    sub_category_name_path='',
-    sub_sub_category_name_path='',
-    url='',
-    api=''
-))
-'''

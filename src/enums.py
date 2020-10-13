@@ -1,9 +1,9 @@
 from enum import Enum
 from collections import namedtuple
 
-from src.scrapers import tiendainglesa_scraper
-from src.scrapers import tata_scraper
-from src.scrapers import disco_scraper
+from src.scrapers import selenium_scraper
+from src.scrapers import api_scraper
+from src.scrapers import api_bs_scraper
 
 
 class CompanyNameEnum(Enum):
@@ -20,9 +20,9 @@ ScrapWith = namedtuple('ScrapWith', ['name', 'func'])
 
 
 class ScrapWithEnum(Enum):
-    SELENIUM = ScrapWith('SELENIUM', tiendainglesa_scraper)
-    API = ScrapWith('API', tata_scraper)
-    API_BS = ScrapWith('API_BS', disco_scraper)
+    SELENIUM = ScrapWith('SELENIUM', selenium_scraper)
+    API = ScrapWith('API', api_scraper)
+    API_BS = ScrapWith('API_BS', api_bs_scraper)
 
     @classmethod
     def filter_by_name(cls, name):
