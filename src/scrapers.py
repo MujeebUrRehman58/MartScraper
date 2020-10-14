@@ -29,6 +29,14 @@ def get_value_by_path(data, path):
     return val
 
 
+def extract_category(cat, index):
+    try:
+        val = cat[index]
+    except:
+        val = ''
+    return val
+
+
 def transform_json_data(data, config):
     name = get_value_by_path(data, config.product_name_path)
     price = get_value_by_path(data, config.product_price_path)
@@ -44,9 +52,9 @@ def transform_json_data(data, config):
         url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-1000-1000\2", image)
         thumb_url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-250-250\2", image)
         category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
-        category_name = category[0]
-        sub_category_name = category[1]
-        sub_sub_category_name = category[2]
+        category_name = extract_category(category, 0)
+        sub_category_name = extract_category(category, 1)
+        sub_sub_category_name = extract_category(category, 2)
         url_product = get_value_by_path(data, config.product_url_path)
         create_product(Product(
             name=name, price=price, currency=currency, date_time_scrap=date_time_scrap, url_img=url_img,
