@@ -38,7 +38,7 @@ def extract_category(cat, index):
 
 
 def transform_json_data(data, config):
-    name = get_value_by_path(data, config.product_name_path)
+    name = get_value_by_path(data, config.product_name_path).replace('\"', '')
     price = get_value_by_path(data, config.product_price_path)
     currency = '$'
     date_time_scrap = dt.utcnow()
@@ -99,7 +99,7 @@ def selenium_scraper(config):
         if not products:
             break
         for p in products:
-            name = p.find_element_by_css_selector(config.product_name_path).text
+            name = p.find_element_by_css_selector(config.product_name_path).text.replace('\"', '')
             price = p.find_element_by_css_selector(config.product_price_path).text
             currency = re.findall(r'[^ 0-9]', price)[0]
             price = int(''.join(re.findall(r'[0-9]', price)))

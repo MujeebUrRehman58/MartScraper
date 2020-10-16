@@ -66,7 +66,6 @@ def get_id_by_query(sql):
 
 
 def find_product_by_name_and_company(name, company_id):
-    name = name.replace('\"', '')
     sql = f"SELECT * FROM Product WHERE Name=\"{name}\" AND CompanyId={company_id}"
     return get_id_by_query(sql)
 
