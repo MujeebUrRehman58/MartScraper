@@ -29,9 +29,11 @@ def get_value_by_path(data, path):
     return val
 
 
-def extract_category(cat, index):
+def extract_category(cat, index, get_text=False):
     try:
         val = cat[index]
+        if get_text:
+            val = val.get_text()
     except:
         val = ''
     return val
@@ -118,9 +120,9 @@ def selenium_scraper(config):
                 res = session.get(url_product)
                 res = BS(res.content, 'html.parser')
                 crumbs = res.select(config.category_name_path)
-                category_name = crumbs[1].get_text()
-                sub_category_name = crumbs[2].get_text()
-                sub_sub_category_name = crumbs[3].get_text()
+                category_name = extract_category(crumbs, 1, get_text=True)
+                sub_category_name = extract_category(crumbs, 2, get_text=True)
+                sub_sub_category_name = extract_category(crumbs, 3, get_text=True)
                 create_product(Product(
                     name=name, price=price, currency=currency, date_time_scrap=date_time_scrap, url_img=url_img,
                     thumb_url_img=thumb_url_img, category_name=category_name, sub_category_name=sub_category_name,
