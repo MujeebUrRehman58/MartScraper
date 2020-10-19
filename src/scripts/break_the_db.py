@@ -69,6 +69,26 @@ db_cursor.execute(
 for e in CompanyNameEnum.list():
     create_company(Company(e))
 
+
+# create scrap configurator for Geant
+create_scrap_configurator(ScrapConfigurator(
+    company_id=get_company_by_name(CompanyNameEnum.GEANT.value),
+    scrap_with=ScrapWithEnum.API.name,
+    product_name_path="['productName']",
+    product_price_path="['items', '0', 'sellers', '0', 'commertialOffer', 'ListPrice']",
+    product_thumb_img_path="['items', '0', 'images', '0', 'imageUrl']",
+    product_img_path="['items', '0', 'images', '0', 'imageUrl']",
+    pagination_path=None,
+    category_name_path="['categories', '0']",
+    sub_category_name_path="['categories', '0']",
+    sub_sub_category_name_path="['categories', '0']",
+    product_items_path=None,
+    product_url_path="['link']",
+    url=None,
+    api="https://www.geant.com.uy/api/catalog_system/pub/products/search/"
+        "papeleria?O=OrderByReleaseDateDESC&_from={}&_to={}&ft"
+))
+
 # create scrap configurator for Tata
 for c in ['desayuno', 'aceites-y-aderezos', 'golosinas-y-chocolates', 'panificados',
           'snacks', 'aceitunas-y-encurtidos', 'conservas', 'arroz-harina-y-legumbres',

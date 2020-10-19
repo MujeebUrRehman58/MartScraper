@@ -10,6 +10,7 @@ class CompanyNameEnum(Enum):
     TIENDAINGLESA = 'TiendaInglesa'
     TATA = 'Tata'
     DISCO = 'Disco'
+    GEANT = 'Geant'
 
     @classmethod
     def list(cls):

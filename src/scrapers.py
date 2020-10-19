@@ -12,7 +12,7 @@ from src.db import Product
 from src.db import ProductHistory
 from src.scripts.queries import create_product
 from src.scripts.queries import create_product_history
-from src.scripts.queries import find_product_by_name_and_company
+from src.scripts.queries import find_product_by_url_and_company
 
 
 chrome_options = Options()
@@ -40,16 +40,17 @@ def extract_category(cat, index, get_text=False):
 
 
 def transform_json_data(data, config):
-    name = get_value_by_path(data, config.product_name_path).replace('\"', '')
+    url_product = get_value_by_path(data, config.product_url_path)
     price = get_value_by_path(data, config.product_price_path)
     currency = '$'
     date_time_scrap = dt.utcnow()
-    product_id = find_product_by_name_and_company(name, config.company_id)
+    product_id = find_product_by_url_and_company(url_product, config.company_id)
     if product_id:
         create_product_history(ProductHistory(
             price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
         )
     else:
+        name = get_value_by_path(data, config.product_name_path)
         image = get_value_by_path(data, config.product_thumb_img_path)
         url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-1000-1000\2", image)
         thumb_url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-250-250\2", image)
@@ -57,7 +58,6 @@ def transform_json_data(data, config):
         category_name = extract_category(category, 0)
         sub_category_name = extract_category(category, 1)
         sub_sub_category_name = extract_category(category, 2)
-        url_product = get_value_by_path(data, config.product_url_path)
         create_product(Product(
             name=name, price=price, currency=currency, date_time_scrap=date_time_scrap, url_img=url_img,
             thumb_url_img=thumb_url_img, category_name=category_name, sub_category_name=sub_category_name,
@@ -101,20 +101,20 @@ def selenium_scraper(config):
         if not products:
             break
         for p in products:
-            name = p.find_element_by_css_selector(config.product_name_path).text.replace('\"', '')
+            url_product = p.find_element_by_css_selector(config.product_url_path).get_attribute('href')
             price = p.find_element_by_css_selector(config.product_price_path).text
             currency = re.findall(r'[^ 0-9]', price)[0]
             price = int(''.join(re.findall(r'[0-9]', price)))
             date_time_scrap = dt.utcnow()
-            product_id = find_product_by_name_and_company(name, config.company_id)
+            product_id = find_product_by_url_and_company(url_product, config.company_id)
             if product_id:
                 create_product_history(ProductHistory(
                     price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
                 )
             else:
+                name = p.find_element_by_css_selector(config.product_name_path).text
                 thumb_url_img = p.find_element_by_css_selector(config.product_thumb_img_path).get_attribute('src')
                 url_img = re.sub('/small/', '/large/', thumb_url_img)
-                url_product = p.find_element_by_css_selector(config.product_url_path).get_attribute('href')
                 session = requests.session()
                 session.headers = {'User-Agent': user_agent}
                 res = session.get(url_product)

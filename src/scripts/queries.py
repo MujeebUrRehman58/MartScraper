@@ -67,8 +67,8 @@ def get_first_element_by_query(sql):
     return result[0] if result else result
 
 
-def find_product_by_name_and_company(name, company_id):
-    sql = f"SELECT * FROM Product WHERE Name=\"{name}\" AND CompanyId={company_id}"
+def find_product_by_url_and_company(url, company_id):
+    sql = f"SELECT * FROM Product WHERE Name=\"{url}\" AND CompanyId={company_id}"
     return get_first_element_by_query(sql)
 
 
@@ -85,5 +85,5 @@ def get_all_configurators():
 
 
 def get_product_price_history(product_id):
-    sql = f"SELECT Price FROM ProductHistory WHERE ProductId={product_id} ORDER BY ProductId DESC LIMIT 1"
+    sql = f"SELECT Price FROM ProductHistory WHERE ProductId={product_id} ORDER BY ProductHistoryId DESC LIMIT 1"
     return get_first_element_by_query(sql)
