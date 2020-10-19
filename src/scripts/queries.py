@@ -51,15 +51,17 @@ def create_product(obj: Product, company_id):
 
 def create_product_history(obj: ProductHistory, product_id):
     try:
-        sql = "INSERT INTO ProductHistory (ProductId, Price, Currency, DateTimeScrap) VALUES (%s, %s, %s, %s)"
-        db_cursor.execute(sql, (product_id, obj.price, obj.currency, obj.date_time_scrap))
-        db.commit()
-        return db_cursor.lastrowid
+        last_price = get_product_price_history(product_id)
+        if last_price != obj.price:
+            sql = "INSERT INTO ProductHistory (ProductId, Price, Currency, DateTimeScrap) VALUES (%s, %s, %s, %s)"
+            db_cursor.execute(sql, (product_id, obj.price, obj.currency, obj.date_time_scrap))
+            db.commit()
+        return True
     except:
         return False
 
 
-def get_id_by_query(sql):
+def get_first_element_by_query(sql):
     db_cursor.execute(sql)
     result = db_cursor.fetchone()
     return result[0] if result else result
@@ -67,12 +69,12 @@ def get_id_by_query(sql):
 
 def find_product_by_name_and_company(name, company_id):
     sql = f"SELECT * FROM Product WHERE Name=\"{name}\" AND CompanyId={company_id}"
-    return get_id_by_query(sql)
+    return get_first_element_by_query(sql)
 
 
 def get_company_by_name(name):
     sql = f"SELECT * FROM Company WHERE CompanyName='{name}'"
-    return get_id_by_query(sql)
+    return get_first_element_by_query(sql)
 
 
 def get_all_configurators():
@@ -80,3 +82,8 @@ def get_all_configurators():
                       " ProductThumbImgPath, ProductImgPath, PaginationPath, CategoryNamePath, SubCategoryNamePath,"
                       " SubSubCategoryNamePath, ProductItemsPath, ProductURLPath, URL, API FROM ScrapConfigurator")
     return db_cursor.fetchall()
+
+
+def get_product_price_history(product_id):
+    sql = f"SELECT Price FROM ProductHistory WHERE ProductId={product_id} ORDER BY ProductId DESC LIMIT 1"
+    return get_first_element_by_query(sql)
