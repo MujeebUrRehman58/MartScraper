@@ -89,6 +89,25 @@ create_scrap_configurator(ScrapConfigurator(
         "papeleria?O=OrderByReleaseDateDESC&_from={}&_to={}&ft"
 ))
 
+# create scrap configurator for Devoto
+create_scrap_configurator(ScrapConfigurator(
+    company_id=get_company_by_name(CompanyNameEnum.DEVOTO.value),
+    scrap_with=ScrapWithEnum.API_BS.name,
+    product_name_path="['productName']",
+    product_price_path="['items', '0', 'sellers', '0', 'commertialOffer', 'ListPrice']",
+    product_thumb_img_path="['items', '0', 'images', '0', 'imageUrl']",
+    product_img_path="['items', '0', 'images', '0', 'imageUrl']",
+    pagination_path=None,
+    category_name_path="['categories', '0']",
+    sub_category_name_path="['categories', '0']",
+    sub_sub_category_name_path="['categories', '0']",
+    product_items_path='.Product',
+    product_url_path="['link']",
+    url="https://www.devoto.com.uy/buscapagina?sc=3&fq=C%3a%2f412%2f&"
+        "PS=20&sl=994d903c-157c-4807-b8a3-ae3c5e511a30&cc=1&sm=0&PageNumber={}",
+    api="https://www.devoto.com.uy/api/catalog_system/pub/products/search/?&fq=productId:{}",
+))
+
 # create scrap configurator for Tata
 for c in ['desayuno', 'aceites-y-aderezos', 'golosinas-y-chocolates', 'panificados',
           'snacks', 'aceitunas-y-encurtidos', 'conservas', 'arroz-harina-y-legumbres',
