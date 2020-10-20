@@ -39,11 +39,18 @@ def extract_category(cat, index, get_text=False):
     return val
 
 
+def log_message(message):
+    print(f'{dt.now()} {message}')
+
+
 def transform_json_data(data, config):
     url_product = get_value_by_path(data, config.product_url_path)
     price = get_value_by_path(data, config.product_price_path)
     currency = '$'
     date_time_scrap = dt.utcnow()
+    category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
+    category_name = extract_category(category, 0)
+    log_message(f'Begin {category_name}')
     product_id = find_product_by_url_and_company(url_product, config.company_id)
     if product_id:
         create_product_history(ProductHistory(
@@ -54,14 +61,13 @@ def transform_json_data(data, config):
         image = get_value_by_path(data, config.product_thumb_img_path)
         url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-1000-1000\2", image)
         thumb_url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-250-250\2", image)
-        category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
-        category_name = extract_category(category, 0)
         sub_category_name = extract_category(category, 1)
         sub_sub_category_name = extract_category(category, 2)
         create_product(Product(
             name=name, price=price, currency=currency, date_time_scrap=date_time_scrap, url_img=url_img,
             thumb_url_img=thumb_url_img, category_name=category_name, sub_category_name=sub_category_name,
             sub_sub_category_name=sub_sub_category_name, url_product=url_product), config.company_id)
+    log_message(f'End {category_name}')
 
 
 def api_bs_scraper(config):
@@ -100,7 +106,9 @@ def selenium_scraper(config):
         products = driver.find_elements_by_css_selector(config.product_items_path)
         if not products:
             break
+        category = driver.find_elements_by_css_selector(config.category_name_path)[1].text
         for p in products:
+            log_message(f'Begin {category}')
             url_product = p.find_element_by_css_selector(config.product_url_path).get_attribute('href')
             price = p.find_element_by_css_selector(config.product_price_path).text
             currency = re.findall(r'[^ 0-9]', price)[0]
@@ -127,7 +135,7 @@ def selenium_scraper(config):
                     name=name, price=price, currency=currency, date_time_scrap=date_time_scrap, url_img=url_img,
                     thumb_url_img=thumb_url_img, category_name=category_name, sub_category_name=sub_category_name,
                     sub_sub_category_name=sub_sub_category_name, url_product=url_product), config.company_id)
-
+            log_message(f'End {category}')
         page_number += 1
     driver.close()
 
