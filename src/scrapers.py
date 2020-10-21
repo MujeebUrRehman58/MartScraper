@@ -18,6 +18,8 @@ from src.scripts.queries import find_product_by_url_and_company
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'
+session = requests.session()
+session.headers = {'User-Agent': user_agent}
 
 
 def get_value_by_path(data, path):
@@ -111,7 +113,7 @@ def selenium_scraper(config):
             log_message(f'Begin {category}')
             url_product = p.find_element_by_css_selector(config.product_url_path).get_attribute('href')
             price = p.find_element_by_css_selector(config.product_price_path).text
-            currency = re.findall(r'[^ 0-9]', price)[0]
+            currency = re.findall(r'[^ 0-9]+', price)[0]
             price = int(''.join(re.findall(r'[0-9]', price)))
             date_time_scrap = dt.utcnow()
             product_id = find_product_by_url_and_company(url_product, config.company_id)
@@ -123,8 +125,6 @@ def selenium_scraper(config):
                 name = p.find_element_by_css_selector(config.product_name_path).text
                 thumb_url_img = p.find_element_by_css_selector(config.product_thumb_img_path).get_attribute('src')
                 url_img = re.sub('/small/', '/large/', thumb_url_img)
-                session = requests.session()
-                session.headers = {'User-Agent': user_agent}
                 res = session.get(url_product)
                 res = BS(res.content, 'html.parser')
                 crumbs = res.select(config.category_name_path)
