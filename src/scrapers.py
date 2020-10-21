@@ -12,7 +12,7 @@ from src.db import Product
 from src.db import ProductHistory
 from src.scripts.queries import create_product
 from src.scripts.queries import create_product_history
-from src.scripts.queries import find_product_by_url_and_company
+from src.scripts.queries import find_product_by_external_id_and_company
 
 
 chrome_options = Options()
@@ -54,7 +54,7 @@ def transform_json_data(data, config):
     category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
     category_name = extract_category(category, 0)
     log_message(f'Begin {category_name}')
-    product_id = find_product_by_url_and_company(url_product, config.company_id)
+    product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
     if product_id:
         create_product_history(ProductHistory(
             price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
@@ -119,7 +119,7 @@ def selenium_scraper(config):
             currency = re.findall(r'[^ 0-9]+', price)[0]
             price = int(''.join(re.findall(r'[0-9]', price)))
             date_time_scrap = dt.utcnow()
-            product_id = find_product_by_url_and_company(url_product, config.company_id)
+            product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
             if product_id:
                 create_product_history(ProductHistory(
                     price=price, currency=currency, date_time_scrap=date_time_scrap), product_id

@@ -67,8 +67,8 @@ def get_first_element_by_query(sql):
     return result[0] if result else result
 
 
-def find_product_by_url_and_company(url, company_id):
-    sql = f"SELECT * FROM Product WHERE Name=\"{url}\" AND CompanyId={company_id}"
+def find_product_by_external_id_and_company(external_id, company_id):
+    sql = f"SELECT * FROM Product WHERE ExternalProductId={external_id} AND CompanyId={company_id}"
     return get_first_element_by_query(sql)
 
 
