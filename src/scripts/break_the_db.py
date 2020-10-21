@@ -31,6 +31,7 @@ db_cursor.execute(
     f" CategoryNamePath VARCHAR(800),"
     f" SubCategoryNamePath VARCHAR(800),"
     f" SubSubCategoryNamePath VARCHAR(800),"
+    f" ExternalProductIdPath VARCHAR(800),"
     f" ProductItemsPath VARCHAR(800),"
     f" ProductURLPath VARCHAR(800),"
     f" URL VARCHAR(800),"
@@ -46,6 +47,7 @@ db_cursor.execute(
     f" Price DECIMAL(10, 2) NOT NULL,"
     f" Currency VARCHAR(255) NOT NULL,"
     f" DateTimeScrap DateTime NOT NULL,"
+    f" ExternalProductId INT(11) NOT NULL,"
     f" URLImg VARCHAR(800),"
     f" ThumbURLImg VARCHAR(800),"
     f" CategoryName VARCHAR(255),"
@@ -82,6 +84,7 @@ create_scrap_configurator(ScrapConfigurator(
     category_name_path="['categories', '0']",
     sub_category_name_path="['categories', '0']",
     sub_sub_category_name_path="['categories', '0']",
+    external_product_id_path="['productId']",
     product_items_path=None,
     product_url_path="['link']",
     url=None,
@@ -101,6 +104,7 @@ create_scrap_configurator(ScrapConfigurator(
     category_name_path="['categories', '0']",
     sub_category_name_path="['categories', '0']",
     sub_sub_category_name_path="['categories', '0']",
+    external_product_id_path="['productId']",
     product_items_path='.Product',
     product_url_path="['link']",
     url="https://www.devoto.com.uy/buscapagina?sc=3&fq=C%3a%2f412%2f&"
@@ -123,6 +127,7 @@ for c in ['desayuno', 'aceites-y-aderezos', 'golosinas-y-chocolates', 'panificad
         category_name_path="['categories', '0']",
         sub_category_name_path="['categories', '0']",
         sub_sub_category_name_path="['categories', '0']",
+        external_product_id_path="['productId']",
         product_items_path=None,
         product_url_path="['link']",
         url=None,
@@ -142,6 +147,7 @@ create_scrap_configurator(ScrapConfigurator(
     category_name_path="['categories', '0']",
     sub_category_name_path="['categories', '0']",
     sub_sub_category_name_path="['categories', '0']",
+    external_product_id_path="['productId']",
     product_items_path='.Product',
     product_url_path="['link']",
     url="https://www.disco.com.uy/buscapagina?sc=4&fq=C%3a%2f412%2f&" \
@@ -161,6 +167,7 @@ create_scrap_configurator(ScrapConfigurator(
     category_name_path='.wBreadCrumbText a',
     sub_category_name_path='.wBreadCrumbText a',
     sub_sub_category_name_path='.wBreadCrumbText a',
+    external_product_id_path=None,
     product_items_path='.TableWebGridSearch',
     product_url_path='.wCartProductName a',
     url='https://www.tiendainglesa.com.uy/Categoria/Almac%C3%A9n/'
