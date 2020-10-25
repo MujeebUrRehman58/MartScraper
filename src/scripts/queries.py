@@ -42,6 +42,7 @@ def create_product(obj: Product, company_id):
                                 obj.sub_category_name, obj.sub_sub_category_name, obj.url_product))
         db.commit()
         p_id = db_cursor.lastrowid
+        print(f'Product with name \'{obj.name}\' created for company: {company_id}')
         create_product_history(ProductHistory(price=obj.price, currency=obj.currency,
                                               date_time_scrap=obj.date_time_scrap), p_id)
         return p_id
