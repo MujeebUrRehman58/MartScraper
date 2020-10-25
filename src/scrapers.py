@@ -92,9 +92,13 @@ def api_bs_scraper(config):
 def api_scraper(config):
     page_number = 1
     while True:
-        _to = page_number*50-50
-        _from = page_number*50-1
-        products = requests.get(config.api.format(_to, _from)).json()
+        _from = page_number*50-50
+        _to = page_number * 50 - 1
+        products = []
+        res = requests.get(config.api.format(_from, _to))
+        if res.status_code == 200:
+            res_json = res.json()
+            products = res_json if isinstance(res_json, list) else products
         if not products:
             break
         for p in products:
