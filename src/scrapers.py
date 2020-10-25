@@ -54,14 +54,15 @@ def transform_json_data(data, config):
     category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
     category_name = extract_category(category, 0)
     log_message(f'Begin {category_name}')
+    name = get_value_by_path(data, config.product_name_path)
     product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
     if product_id:
-        print(f'Product with external id {external_product_id} and company id {config.company_id} already exists')
+        print(f'Product with name \'{name}\', external id {external_product_id}'
+              f' and company id {config.company_id} already exists')
         create_product_history(ProductHistory(
             price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
         )
     else:
-        name = get_value_by_path(data, config.product_name_path)
         image = get_value_by_path(data, config.product_thumb_img_path)
         url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-1000-1000\2", image)
         thumb_url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-250-250\2", image)
@@ -120,14 +121,15 @@ def selenium_scraper(config):
             currency = re.findall(r'[^ 0-9]+', price)[0]
             price = int(''.join(re.findall(r'[0-9]', price)))
             date_time_scrap = dt.utcnow()
+            name = p.find_element_by_css_selector(config.product_name_path).text
             product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
             if product_id:
-                print(f'Product with external id {external_product_id} and company id {config.company_id} already exists')
+                print(f'Product with name \'{name}\', external id {external_product_id}'
+                      f' and company id {config.company_id} already exists')
                 create_product_history(ProductHistory(
                     price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
                 )
             else:
-                name = p.find_element_by_css_selector(config.product_name_path).text
                 thumb_url_img = p.find_element_by_css_selector(config.product_thumb_img_path).get_attribute('src')
                 url_img = re.sub('/small/', '/large/', thumb_url_img)
                 res = session.get(url_product)
