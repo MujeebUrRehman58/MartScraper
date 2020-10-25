@@ -46,14 +46,14 @@ def log_message(message):
 
 
 def transform_json_data(data, config):
+    category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
+    category_name = extract_category(category, 0)
+    log_message(f'Begin {category_name} for company {config.company_id}')
     url_product = get_value_by_path(data, config.product_url_path)
     price = get_value_by_path(data, config.product_price_path)
     external_product_id = int(get_value_by_path(data, config.external_product_id_path))
     currency = '$'
     date_time_scrap = dt.utcnow()
-    category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
-    category_name = extract_category(category, 0)
-    log_message(f'Begin {category_name} for company {config.company_id}')
     name = get_value_by_path(data, config.product_name_path)
     product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
     if product_id:
