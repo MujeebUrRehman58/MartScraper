@@ -3,6 +3,7 @@ from datetime import datetime as dt
 import re
 import pathlib
 import json
+import traceback
 
 from bs4 import BeautifulSoup as BS
 from selenium import webdriver
@@ -46,34 +47,37 @@ def log_message(message):
 
 
 def transform_json_data(data, config):
-    category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
-    category_name = extract_category(category, 0)
-    log_message(f'Begin {category_name} for company {config.company_id}')
-    url_product = get_value_by_path(data, config.product_url_path)
-    price = get_value_by_path(data, config.product_price_path)
-    external_product_id = int(get_value_by_path(data, config.external_product_id_path))
-    currency = '$'
-    date_time_scrap = dt.utcnow()
-    name = get_value_by_path(data, config.product_name_path)
-    product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
-    if product_id:
-        print(f'Product with name \'{name}\', external id {external_product_id}'
-              f' and company id {config.company_id} already exists')
-        create_product_history(ProductHistory(
-            price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
-        )
-    else:
-        image = get_value_by_path(data, config.product_thumb_img_path)
-        url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-1000-1000\2", image)
-        thumb_url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-250-250\2", image)
-        sub_category_name = extract_category(category, 1)
-        sub_sub_category_name = extract_category(category, 2)
-        create_product(Product(
-            name=name, price=price, currency=currency, date_time_scrap=date_time_scrap,
-            external_product_id=external_product_id, url_img=url_img, thumb_url_img=thumb_url_img,
-            category_name=category_name, sub_category_name=sub_category_name,
-            sub_sub_category_name=sub_sub_category_name, url_product=url_product), config.company_id)
-    log_message(f'End {category_name} for company {config.company_id}')
+    try:
+        category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
+        category_name = extract_category(category, 0)
+        log_message(f'Begin {category_name} for company {config.company_id}')
+        url_product = get_value_by_path(data, config.product_url_path)
+        price = get_value_by_path(data, config.product_price_path)
+        external_product_id = int(get_value_by_path(data, config.external_product_id_path))
+        currency = '$'
+        date_time_scrap = dt.utcnow()
+        name = get_value_by_path(data, config.product_name_path)
+        product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
+        if product_id:
+            print(f'Product with name \'{name}\', external id {external_product_id}'
+                  f' and company id {config.company_id} already exists')
+            create_product_history(ProductHistory(
+                price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
+            )
+        else:
+            image = get_value_by_path(data, config.product_thumb_img_path)
+            url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-1000-1000\2", image)
+            thumb_url_img = re.sub(r"([0-9]+(?=/.*.jpg))(/.*.jpg)", r"\1-250-250\2", image)
+            sub_category_name = extract_category(category, 1)
+            sub_sub_category_name = extract_category(category, 2)
+            create_product(Product(
+                name=name, price=price, currency=currency, date_time_scrap=date_time_scrap,
+                external_product_id=external_product_id, url_img=url_img, thumb_url_img=thumb_url_img,
+                category_name=category_name, sub_category_name=sub_category_name,
+                sub_sub_category_name=sub_sub_category_name, url_product=url_product), config.company_id)
+        log_message(f'End {category_name} for company {config.company_id}')
+    except:
+        print(f'Error\n{traceback.format_exc()}\nFor data:\n{data}')
 
 
 def api_bs_scraper(config):
@@ -84,8 +88,11 @@ def api_bs_scraper(config):
         if not products:
             break
         for p in products:
-            res = requests.get(config.api.format(p['productid'])).json()[0]
-            transform_json_data(res, config)
+            res = requests.get(config.api.format(p['productid']))
+            if res.status_code == 200:
+                res_json = res.json()
+                if res_json and isinstance(res_json, list) and isinstance(res_json[0], dict):
+                    transform_json_data(res_json[0], config)
         page_number += 1
 
 
