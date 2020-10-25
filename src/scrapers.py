@@ -53,7 +53,7 @@ def transform_json_data(data, config):
     date_time_scrap = dt.utcnow()
     category = [i for i in get_value_by_path(data, config.category_name_path).split('/') if i]
     category_name = extract_category(category, 0)
-    log_message(f'Begin {category_name}')
+    log_message(f'Begin {category_name} for company {config.company_id}')
     name = get_value_by_path(data, config.product_name_path)
     product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
     if product_id:
@@ -73,7 +73,7 @@ def transform_json_data(data, config):
             external_product_id=external_product_id, url_img=url_img, thumb_url_img=thumb_url_img,
             category_name=category_name, sub_category_name=sub_category_name,
             sub_sub_category_name=sub_sub_category_name, url_product=url_product), config.company_id)
-    log_message(f'End {category_name}')
+    log_message(f'End {category_name} for company {config.company_id}')
 
 
 def api_bs_scraper(config):
@@ -114,7 +114,7 @@ def selenium_scraper(config):
             break
         category = driver.find_elements_by_css_selector(config.category_name_path)[1].text
         for p in products:
-            log_message(f'Begin {category}')
+            log_message(f'Begin {category} for company {config.company_id}')
             url_product = p.find_element_by_css_selector(config.product_url_path).get_attribute('href')
             external_product_id = int(url_product.split('producto?')[1].split(',')[0])
             price = p.find_element_by_css_selector(config.product_price_path).text
@@ -143,7 +143,7 @@ def selenium_scraper(config):
                     external_product_id=external_product_id, url_img=url_img, thumb_url_img=thumb_url_img,
                     category_name=category_name, sub_category_name=sub_category_name,
                     sub_sub_category_name=sub_sub_category_name, url_product=url_product), config.company_id)
-            log_message(f'End {category}')
+            log_message(f'Begin {category} for company {config.company_id}')
         page_number += 1
     driver.close()
 
