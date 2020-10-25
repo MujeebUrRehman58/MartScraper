@@ -89,7 +89,7 @@ def api_bs_scraper(config):
             break
         for p in products:
             res = requests.get(config.api.format(p['productid']))
-            if res.status_code == 200:
+            if res.status_code in [200, 206]:
                 res_json = res.json()
                 if res_json and isinstance(res_json, list) and isinstance(res_json[0], dict):
                     transform_json_data(res_json[0], config)
@@ -103,7 +103,7 @@ def api_scraper(config):
         _to = page_number * 50 - 1
         products = []
         res = requests.get(config.api.format(_from, _to))
-        if res.status_code == 200:
+        if res.status_code in [200, 206]:
             res_json = res.json()
             products = res_json if isinstance(res_json, list) else products
         if not products:
