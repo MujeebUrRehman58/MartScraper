@@ -56,6 +56,10 @@ def create_product_history(obj: ProductHistory, product_id):
             sql = "INSERT INTO ProductHistory (ProductId, Price, Currency, DateTimeScrap) VALUES (%s, %s, %s, %s)"
             db_cursor.execute(sql, (product_id, obj.price, obj.currency, obj.date_time_scrap))
             db.commit()
+            print(f'New ProductHistory entry created for product with id: {product_id}')
+        else:
+            print(f'No New ProductHistory entry created because price'
+                  f' is same as before for product with id: {product_id}')
         return True
     except:
         return False

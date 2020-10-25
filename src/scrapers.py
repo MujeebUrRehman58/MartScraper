@@ -56,6 +56,7 @@ def transform_json_data(data, config):
     log_message(f'Begin {category_name}')
     product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
     if product_id:
+        print(f'Product with external id {external_product_id} and company id {config.company_id} already exists')
         create_product_history(ProductHistory(
             price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
         )
@@ -121,6 +122,7 @@ def selenium_scraper(config):
             date_time_scrap = dt.utcnow()
             product_id = find_product_by_external_id_and_company(external_product_id, config.company_id)
             if product_id:
+                print(f'Product with external id {external_product_id} and company id {config.company_id} already exists')
                 create_product_history(ProductHistory(
                     price=price, currency=currency, date_time_scrap=date_time_scrap), product_id
                 )
