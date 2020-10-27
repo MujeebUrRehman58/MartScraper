@@ -1,7 +1,7 @@
 from enum import Enum
 from collections import namedtuple
 
-from src.scrapers import selenium_scraper
+from src.scrapers import bs_scraper
 from src.scrapers import api_scraper
 from src.scrapers import api_bs_scraper
 
@@ -22,7 +22,7 @@ ScrapWith = namedtuple('ScrapWith', ['name', 'func'])
 
 
 class ScrapWithEnum(Enum):
-    SELENIUM = ScrapWith('SELENIUM', selenium_scraper)
+    BS = ScrapWith('BS', bs_scraper)
     API = ScrapWith('API', api_scraper)
     API_BS = ScrapWith('API_BS', api_bs_scraper)
 

@@ -158,17 +158,17 @@ create_scrap_configurator(ScrapConfigurator(
 # create scrap configurator for Tiendainglesa
 create_scrap_configurator(ScrapConfigurator(
     company_id=get_company_by_name(CompanyNameEnum.TIENDAINGLESA.value),
-    scrap_with=ScrapWithEnum.SELENIUM.name,
+    scrap_with=ScrapWithEnum.BS.name,
     product_name_path='.wCartProductName a',
     product_price_path='.ProductPrice',
-    product_thumb_img_path='.gx-image-link img',
-    product_img_path='.gx-image-link img',
+    product_thumb_img_path='.gx-image-link .ImageProductComponent',
+    product_img_path='.gx-image-link .ImageProductComponent',
     pagination_path=None,
     category_name_path='.wBreadCrumbText a',
     sub_category_name_path='.wBreadCrumbText a',
     sub_sub_category_name_path='.wBreadCrumbText a',
     external_product_id_path=None,
-    product_items_path='.TableWebGridSearch',
+    product_items_path='.TableProductInfoInGrid',
     product_url_path='.wCartProductName a',
     url='https://www.tiendainglesa.com.uy/Categoria/Almac%C3%A9n/'
         'busqueda?0,0,*:*,78,0,0,,%5B%5D,false,%5B%5D,%5B%5D,,{}',
