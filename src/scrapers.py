@@ -1,9 +1,12 @@
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from datetime import datetime as dt
 import re
 import json
 import traceback
 from urllib.parse import urlparse
+from time import sleep
 
 from bs4 import BeautifulSoup as BS
 
@@ -15,6 +18,10 @@ from src.scripts.queries import find_product_by_external_id_and_company
 
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'
 session = requests.session()
+retry = Retry(connect=3, backoff_factor=0.5)
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
 session.headers = {'User-Agent': user_agent}
 
 
@@ -39,6 +46,20 @@ def extract_category(cat, index, get_text=False):
 
 def log_message(message):
     print(f'{dt.now()} {message}')
+
+
+def safe_get(url):
+    res = None
+    try:
+        res = session.get(url)
+    except:
+        print(f'Could not get {url}\nRetrying with delay now.')
+        try:
+            sleep(5)
+            res = session.get(url)
+        except:
+            print('Retry with delay failed as well. Skipping..')
+    return res
 
 
 def transform_json_data(data, config):
@@ -77,14 +98,24 @@ def transform_json_data(data, config):
 
 def api_bs_scraper(config):
     page_number = 1
+    get_failure = 0
     while True:
-        page = requests.get(config.url.format(page_number))
+        page = safe_get(config.url.format(page_number))
+        if not page:
+            get_failure += 1
+            if get_failure >= 10:
+                print(f'Failure in getting 10 consecutive pages for company {config.company_id}. Skipping it now.')
+                break
+            else:
+                page_number += 1
+                continue
+        get_failure = 0
         products = BS(page.content, 'html.parser').select(config.product_items_path)
         if not products:
             break
         for p in products:
-            res = requests.get(config.api.format(p['productid']))
-            if res.status_code in [200, 206]:
+            res = safe_get(config.api.format(p['productid']))
+            if res and res.status_code in [200, 206]:
                 res_json = res.json()
                 if res_json and isinstance(res_json, list) and isinstance(res_json[0], dict):
                     transform_json_data(res_json[0], config)
@@ -93,11 +124,21 @@ def api_bs_scraper(config):
 
 def api_scraper(config):
     page_number = 1
+    get_failure = 0
     while True:
         _from = page_number*50-50
         _to = page_number * 50 - 1
         products = []
-        res = requests.get(config.api.format(_from, _to))
+        res = safe_get(config.api.format(_from, _to))
+        if not res:
+            get_failure += 1
+            if get_failure >= 10:
+                print(f'Failure in getting 10 consecutive pages for company {config.company_id}. Skipping it now.')
+                break
+            else:
+                page_number += 1
+                continue
+        get_failure = 0
         if res.status_code in [200, 206]:
             res_json = res.json()
             products = res_json if isinstance(res_json, list) else products
@@ -112,8 +153,18 @@ def bs_scraper(config):
     parse_result = urlparse(config.url)
     base_url = f'{parse_result.scheme}://{parse_result.netloc}'
     page_number = 0
+    get_failure = 0
     while True:
-        page = session.get(config.url.format(page_number))
+        page = safe_get(config.url.format(page_number))
+        if not page:
+            get_failure += 1
+            if get_failure >= 10:
+                print(f'Failure in getting 10 consecutive pages for company {config.company_id}. Skipping it now.')
+                break
+            else:
+                page_number += 1
+                continue
+        get_failure = 0
         page = BS(page.content, 'html.parser')
         products = page.select(config.product_items_path)
         if not products:
@@ -139,9 +190,9 @@ def bs_scraper(config):
                 else:
                     thumb_url_img = p.select_one(config.product_thumb_img_path)['src']
                     url_img = re.sub('/small/', '/large/', thumb_url_img)
-                    res = session.get(url_product)
-                    res = BS(res.content, 'html.parser')
-                    crumbs = res.select(config.category_name_path)
+                    res = safe_get(url_product)
+                    res = BS(res.content, 'html.parser') if res else None
+                    crumbs = res.select(config.category_name_path) if res else []
                     category_name = extract_category(crumbs, 1, get_text=True)
                     sub_category_name = extract_category(crumbs, 2, get_text=True)
                     sub_sub_category_name = extract_category(crumbs, 3, get_text=True)
