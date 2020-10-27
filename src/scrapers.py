@@ -6,7 +6,6 @@ import traceback
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup as BS
-from selenium.webdriver.chrome.options import Options
 
 from src.db import Product
 from src.db import ProductHistory
@@ -14,9 +13,6 @@ from src.scripts.queries import create_product
 from src.scripts.queries import create_product_history
 from src.scripts.queries import find_product_by_external_id_and_company
 
-
-chrome_options = Options()
-chrome_options.add_argument("--headless")
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'
 session = requests.session()
 session.headers = {'User-Agent': user_agent}
