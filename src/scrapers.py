@@ -1,6 +1,4 @@
 import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 from datetime import datetime as dt
 import re
 import json
@@ -18,10 +16,6 @@ from src.scripts.queries import find_product_by_external_id_and_company
 
 user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'
 session = requests.session()
-retry = Retry(connect=3, backoff_factor=0.5)
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('http://', adapter)
-session.mount('https://', adapter)
 session.headers = {'User-Agent': user_agent}
 
 
@@ -48,17 +42,23 @@ def log_message(message):
     print(f'{dt.now()} {message}')
 
 
-def safe_get(url):
+def safe_get(url, check_json_validity=False):
     res = None
     try:
-        res = session.get(url)
-    except:
+        res = session.get(url, timeout=(15, 60))
+    except Exception:
         print(f'Could not get {url}\nRetrying with delay now.')
         try:
             sleep(5)
             res = session.get(url)
         except:
             print('Retry with delay failed as well. Skipping..')
+    if check_json_validity:
+        try:
+            res.json()
+            return res, True
+        except:
+            return res, False
     return res
 
 
@@ -114,8 +114,8 @@ def api_bs_scraper(config):
         if not products:
             break
         for p in products:
-            res = safe_get(config.api.format(p['productid']))
-            if res and res.status_code in [200, 206]:
+            res, is_data_valid = safe_get(config.api.format(p['productid']), True)
+            if is_data_valid and res and res.status_code in [200, 206]:
                 res_json = res.json()
                 if res_json and isinstance(res_json, list) and isinstance(res_json[0], dict):
                     transform_json_data(res_json[0], config)
@@ -129,8 +129,8 @@ def api_scraper(config):
         _from = page_number*50-50
         _to = page_number * 50 - 1
         products = []
-        res = safe_get(config.api.format(_from, _to))
-        if not res:
+        res, is_data_valid = safe_get(config.api.format(_from, _to), True)
+        if not is_data_valid or not res:
             get_failure += 1
             if get_failure >= 10:
                 print(f'Failure in getting 10 consecutive pages for company {config.company_id}. Skipping it now.')
