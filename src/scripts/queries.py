@@ -20,12 +20,13 @@ def create_scrap_configurator(obj: ScrapConfigurator):
     try:
         sql = "INSERT INTO ScrapConfigurator (CompanyId, ScrapWith, ProductNamePath, ProductPricePath, " \
               "ProductThumbImgPath, ProductImgPath, PaginationPath, CategoryNamePath, SubCategoryNamePath, " \
-              "SubSubCategoryNamePath, ExternalProductIdPath, ProductItemsPath, ProductURLPath,  URL, API) VALUES " \
-              "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+              "SubSubCategoryNamePath, ExternalProductIdPath, ProductItemsPath, ProductURLPath," \
+              "  URL, API, Enabled) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         db_cursor.execute(sql, (obj.company_id, obj.scrap_with, obj.product_name_path, obj.product_price_path,
                                 obj.product_thumb_img_path, obj.product_img_path, obj.pagination_path,
                                 obj.category_name_path, obj.sub_category_name_path, obj.sub_sub_category_name_path,
-                                obj.external_product_id_path, obj.product_items_path, obj.product_url_path, obj.url, obj.api))
+                                obj.external_product_id_path, obj.product_items_path, obj.product_url_path,
+                                obj.url, obj.api, obj.enabled))
         db.commit()
         return db_cursor.lastrowid
     except Exception as ex:
@@ -84,8 +85,9 @@ def get_company_by_name(name):
 
 def get_all_configurators():
     db_cursor.execute("SELECT CompanyId, ScrapWith, ProductNamePath, ProductPricePath, ProductThumbImgPath, "
-                      "ProductImgPath, PaginationPath, CategoryNamePath, SubCategoryNamePath,  SubSubCategoryNamePath, "
-                      "ExternalProductIdPath, ProductItemsPath, ProductURLPath, URL, API FROM ScrapConfigurator")
+                      "ProductImgPath, PaginationPath, CategoryNamePath, SubCategoryNamePath,  "
+                      "SubSubCategoryNamePath, ExternalProductIdPath, ProductItemsPath, "
+                      "ProductURLPath, URL, API, Enabled FROM ScrapConfigurator WHERE Enabled = TRUE")
     return db_cursor.fetchall()
 
 

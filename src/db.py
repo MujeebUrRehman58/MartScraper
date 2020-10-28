@@ -44,7 +44,7 @@ class ScrapConfigurator:
     def __init__(self, company_id, scrap_with, product_name_path, product_price_path, product_thumb_img_path,
                  product_img_path=None, pagination_path=None, category_name_path=None, sub_category_name_path=None,
                  sub_sub_category_name_path=None, external_product_id_path=None, product_items_path=None,
-                 product_url_path=None, url=None, api=None):
+                 product_url_path=None, url=None, api=None, enabled=True):
         self.company_id = company_id
         self.scrap_with = scrap_with
         self.product_name_path = product_name_path
@@ -60,3 +60,4 @@ class ScrapConfigurator:
         self.product_url_path = product_url_path
         self.url = url
         self.api = api
+        self.enabled = enabled
