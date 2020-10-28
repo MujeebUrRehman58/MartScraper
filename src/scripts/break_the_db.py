@@ -36,7 +36,7 @@ db_cursor.execute(
     f" ProductURLPath VARCHAR(800),"
     f" URL VARCHAR(800),"
     f" API VARCHAR(800),"
-    f" Enabled BOOLEAN DEFAULT FALSE,"
+    f" Enabled BOOLEAN NOT NULL DEFAULT FALSE,"
     f" FOREIGN KEY (CompanyId) REFERENCES {TablesEnum.COMPANY.value} (CompanyId));"
 )
 
