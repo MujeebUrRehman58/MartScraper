@@ -52,12 +52,13 @@ def safe_get(url, check_json_validity=False):
             sleep(5)
             res = session.get(url)
         except:
-            print('Retry with delay failed as well. Skipping..')
+            print(f'Retry with delay failed as well for {url}. Skipping..')
     if check_json_validity:
         try:
             res.json()
             return res, True
         except:
+            print(f'Did not receive valid json data for {url}')
             return res, False
     return res
 
