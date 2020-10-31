@@ -57,6 +57,7 @@ def create_product_history(obj: ProductHistory, product_id):
         if last_price != obj.price:
             sql = "INSERT INTO ProductHistory (ProductId, Price, Currency, DateTimeScrap) VALUES (%s, %s, %s, %s)"
             db_cursor.execute(sql, (product_id, obj.price, obj.currency, obj.date_time_scrap))
+            db_cursor.execute(f'UPDATE Product SET Price = {obj.price} WHERE ProductId = {product_id};')
             db.commit()
             print(f'New ProductHistory entry created for product with id: {product_id}')
         else:

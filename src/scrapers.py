@@ -50,7 +50,7 @@ def safe_get(url, check_json_validity=False):
         print(f'Could not get {url}\nRetrying with delay now.')
         try:
             sleep(5)
-            res = session.get(url)
+            res = session.get(url, timeout=(15, 60))
         except:
             print(f'Retry with delay failed as well for {url}. Skipping..')
     if check_json_validity:
